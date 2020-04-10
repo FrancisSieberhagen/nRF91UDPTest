@@ -1,6 +1,6 @@
 # nRF91UDPTest
 
-## Test BSD library - NB-IoT UDP client connect to server (server/udp_server)
+## Test BSD library - NB-IoT UDP client send JSON data to server (server/udp_server)
 
 ### nRF Connect SDK!
     https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/index.html
