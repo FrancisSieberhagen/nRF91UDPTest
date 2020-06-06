@@ -14,11 +14,11 @@
 
 #include "cJSON.h"
 
-#define LED_PORT	DT_ALIAS_LED0_GPIOS_CONTROLLER
-#define LED1 DT_GPIO_LEDS_LED0_GPIOS_PIN
-#define LED2 DT_GPIO_LEDS_LED1_GPIOS_PIN
-#define LED3 DT_GPIO_LEDS_LED2_GPIOS_PIN
-#define LED4 DT_GPIO_LEDS_LED3_GPIOS_PIN
+#define LED_PORT        DT_GPIO_LABEL(DT_ALIAS(led0), gpios)
+#define LED1	 DT_GPIO_PIN(DT_ALIAS(led0), gpios)
+#define LED2	 DT_GPIO_PIN(DT_ALIAS(led1), gpios)
+#define LED3	 DT_GPIO_PIN(DT_ALIAS(led2), gpios)
+#define LED4	 DT_GPIO_PIN(DT_ALIAS(led3), gpios)
 
 
 static int server_socket;
@@ -52,12 +52,22 @@ static void init_led()
     led_device = device_get_binding(LED_PORT);
 
     /* Set LED pin as output */
-    gpio_pin_configure(led_device, LED1, GPIO_OUTPUT);
-    gpio_pin_configure(led_device, LED2, GPIO_OUTPUT);
-    gpio_pin_configure(led_device, LED3, GPIO_OUTPUT);
-    gpio_pin_configure(led_device, LED4, GPIO_OUTPUT);
+    gpio_pin_configure(led_device, DT_GPIO_PIN(DT_ALIAS(led0), gpios),
+                       GPIO_OUTPUT_ACTIVE |
+                       DT_GPIO_FLAGS(DT_ALIAS(led0), gpios));
+    gpio_pin_configure(led_device, DT_GPIO_PIN(DT_ALIAS(led1), gpios),
+                       GPIO_OUTPUT_ACTIVE |
+                       DT_GPIO_FLAGS(DT_ALIAS(led1), gpios));
+    gpio_pin_configure(led_device, DT_GPIO_PIN(DT_ALIAS(led2), gpios),
+                       GPIO_OUTPUT_ACTIVE |
+                       DT_GPIO_FLAGS(DT_ALIAS(led2), gpios));
+    gpio_pin_configure(led_device, DT_GPIO_PIN(DT_ALIAS(led3), gpios),
+                       GPIO_OUTPUT_ACTIVE |
+                       DT_GPIO_FLAGS(DT_ALIAS(led3), gpios));
+
 
 }
+
 
 static void led_on(char led)
 {
@@ -78,6 +88,7 @@ static void led_on_off(char led, bool on_off)
         led_off(led);
     }
 }
+
 
 static void init_modem(void)
 {
@@ -229,8 +240,12 @@ int send_udp_msg()
 void main(void)
 {
     init_led();
+    led_off(LED1);
+    led_off(LED2);
+    led_off(LED3);
+    led_off(LED4);
 
-    LOG_INF("BSD Test V1.0");
+    LOG_INF("BSD Test V1.2");
     led_on(LED1);
 
     LOG_INF("Initializing Modem");
@@ -250,6 +265,6 @@ void main(void)
 
         led_off(LED2);
 
-        k_sleep(1000);
+        k_sleep(K_MSEC(1000));
     }
 }
