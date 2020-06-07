@@ -15,8 +15,8 @@ cmake_minimum_required(VERSION 3.8.2)
 
 set(ENV{GNUARMEMB_TOOLCHAIN_PATH} /opt/gnuarmemb)
 
-set(ENV{BOARD} nrf9160_pca10090ns)
-set(ENV{BOARD_DIR} $ENV{ZEPHYR_BASE}/boards/arm/nrf9160_pca10090)
+set(ENV{BOARD} nrf9160dk_nrf9160ns)
+set(ENV{BOARD_DIR} $ENV{ZEPHYR_BASE}/boards/arm/nrf9160dk_nrf9160ns)
 
 set(ENV{ZEPHYR_TOOLCHAIN_VARIANT} gnuarmemb)
 
@@ -39,7 +39,6 @@ set(spm_CONF_FILE
   prj.conf
   ${CMAKE_CURRENT_LIST_DIR}/child_secure_partition_manager.conf
   )
-include($ENV{ZEPHYR_BASE}/../nrf/cmake/boilerplate.cmake)
 include($ENV{ZEPHYR_BASE}/cmake/app/boilerplate.cmake NO_POLICY_SCOPE)
 project(test1)
 

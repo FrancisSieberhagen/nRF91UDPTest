@@ -8,6 +8,8 @@
 #include <bsd.h>
 #include <net/socket.h>
 #include <modem/lte_lc.h>
+#include <modem/at_cmd.h>
+#include <modem/at_notif.h>
 
 #include <drivers/gpio.h>
 #include <stdio.h>
@@ -23,6 +25,23 @@
 
 static int server_socket;
 static struct sockaddr_storage server;
+
+// Request product serial number identification +CGSN
+static const char at_CGSN[] = "AT+CGSN=1";
+// Request manufacturer identification +CGMI
+static const char at_CGMI[] = "AT+CGMI";
+// Request model identification +CGMM
+static const char at_CGMM[] = "AT+CGMM";
+// Request revision identification +CGMR
+static const char at_CGMR[] = "AT+CGMR";
+// Check if a PIN code is needed
+static const char at_CPIN[] = "AT+CPIN?";
+
+static const char at_CGPADDR[] = "AT+CGPADDR=0";
+static const char at_CGDCONT[] = "AT+CGDCONT?";
+
+
+#define IMEI_LEN 1024
 
 LOG_MODULE_REGISTER(app, CONFIG_TEST1_LOG_LEVEL);
 
@@ -89,12 +108,44 @@ static void led_on_off(char led, bool on_off)
     }
 }
 
+int at_command(const char *constcmd) {
+
+    int err;
+    enum at_cmd_state at_state;
+    char imei_buf[IMEI_LEN];
+
+    err = at_cmd_write(constcmd, imei_buf, sizeof(imei_buf), &at_state);
+    if (err) {
+        LOG_ERR("at_cmd_write [%s] error:%d, at_state: %d",
+                log_strdup(constcmd), err, at_state);
+
+    }
+    if (at_state == AT_CMD_OK) {
+        LOG_INF("%s OK", log_strdup(constcmd));
+    }
+
+    k_sleep(K_MSEC(2000));
+    return err;
+
+
+}
+
 
 static void init_modem(void)
 {
     int err;
 
-     err = lte_lc_init_and_connect();
+    err = at_command(at_CGSN);
+    __ASSERT(err == 0, "ERROR: at_command %d %s\n", err, log_strdup(at_CGSN));
+    err = at_command(at_CGMI);
+    __ASSERT(err == 0, "ERROR: at_command %d %s\n", err, log_strdup(at_CGMI));
+    err = at_command(at_CGMM);
+    __ASSERT(err == 0, "ERROR: at_command %d %s\n", err, log_strdup(at_CGMM));
+    err = at_command(at_CGMR);
+    __ASSERT(err == 0, "ERROR: at_command %d %s\n", err, log_strdup(at_CGMR));
+
+
+    err = lte_lc_init_and_connect();
     __ASSERT(err == 0, "ERROR: LTE link init and connect %d\n", err);
 
     err = lte_lc_psm_req(false);
@@ -102,6 +153,17 @@ static void init_modem(void)
 
      err = lte_lc_edrx_req(false);
     __ASSERT(err == 0, "ERROR: edrx %d\n", err);
+
+    LOG_INF("Connected to LTE network");
+
+    err = at_command(at_CPIN);
+    __ASSERT(err == 0, "ERROR: at_command %d %s\n", err, log_strdup(at_CPIN));
+
+    err = at_command(at_CGPADDR);
+    __ASSERT(err == 0, "ERROR: at_command %d %s\n", err, log_strdup(at_CGPADDR));
+
+    err = at_command(at_CGDCONT);
+    __ASSERT(err == 0, "ERROR: at_command %d %s\n", err, log_strdup(at_CGDCONT));
 }
 
 static int udp_ip_resolve(void)
@@ -144,6 +206,11 @@ int create_udp_socket()
 {
     int err;
 
+    struct timeval timeout;
+
+    timeout.tv_sec = 2;
+    timeout.tv_usec = 500000;  // 2.5 seconds
+
     server_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     if (server_socket < 0)
     {
@@ -158,6 +225,8 @@ int create_udp_socket()
         LOG_ERR("Connect failed : %d\n", errno);
         return -errno;
     }
+
+    setsockopt(server_socket, SOL_SOCKET, SO_RCVTIMEO, (const char *) &timeout, sizeof timeout);
 
     return 0;
 }
@@ -229,9 +298,13 @@ int send_udp_msg()
     LOG_INF("Send packet data [%s] To %s:%d. ret=%d",log_strdup(string), log_strdup(CONFIG_SERVER_HOST), CONFIG_SERVER_PORT, ret);
 
     int recsize = recv(server_socket, msgbuf, sizeof msgbuf, 0);
-    LOG_INF("Received packet size %d data [%s]",recsize, log_strdup(msgbuf));
+    if (recsize > 0) {
+        LOG_INF("Received packet size %d data [%s]",recsize, log_strdup(msgbuf));
 
-    action_json_msg(msgbuf);
+        action_json_msg(msgbuf);
+    } else if (recsize == -1) {
+        LOG_INF("Received packet time out");
+    }
 
     return 0;
 }
@@ -245,7 +318,7 @@ void main(void)
     led_off(LED3);
     led_off(LED4);
 
-    LOG_INF("BSD Test V1.2");
+    LOG_INF("BSD Test V1.2.2");
     led_on(LED1);
 
     LOG_INF("Initializing Modem");
