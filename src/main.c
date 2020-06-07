@@ -38,6 +38,7 @@ static const char at_CGMR[] = "AT+CGMR";
 static const char at_CPIN[] = "AT+CPIN?";
 
 static const char at_CGPADDR[] = "AT+CGPADDR=0";
+static const char at_CGCONTRDP[] = "AT+CGCONTRDP=0";
 static const char at_CGDCONT[] = "AT+CGDCONT?";
 
 
@@ -161,6 +162,9 @@ static void init_modem(void)
 
     err = at_command(at_CGPADDR);
     __ASSERT(err == 0, "ERROR: at_command %d %s\n", err, log_strdup(at_CGPADDR));
+
+    err = at_command(at_CGCONTRDP);
+    __ASSERT(err == 0, "ERROR: at_command %d %s\n", err, log_strdup(at_CGCONTRDP));
 
     err = at_command(at_CGDCONT);
     __ASSERT(err == 0, "ERROR: at_command %d %s\n", err, log_strdup(at_CGDCONT));
