@@ -25,7 +25,7 @@
 
 ### Change Test Server ip & port in prj.conf  
     CONFIG_SERVER_HOST="139.162.163.251"
-    CONFIG_SERVER_PORT=42501
+    CONFIG_SERVER_PORT=42511
 
 ### Build hex 
     $ export ZEPHYR_BASE=/????
