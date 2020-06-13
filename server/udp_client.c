@@ -38,9 +38,6 @@ int main(void)
   sa.sin_family = AF_INET;
  
    /* IPv4 adresses is a uint32_t, convert a string representation of the octets to the appropriate value */
-  //sa.sin_addr.s_addr = inet_addr("185.3.95.41");
-  //sa.sin_addr.s_addr = inet_addr("192.168.88.2");
-  //sa.sin_addr.s_addr = inet_addr("105.213.78.79");
   sa.sin_addr.s_addr = inet_addr("127.0.0.1");
   
   /* sockets are unsigned shorts, htons(x) ensures x is in network byte order, set the port to 7654 */
