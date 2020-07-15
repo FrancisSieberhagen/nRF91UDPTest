@@ -36,6 +36,8 @@ static const char at_CGMM[] = "AT+CGMM";
 static const char at_CGMR[] = "AT+CGMR";
 // Check if a PIN code is needed
 static const char at_CPIN[] = "AT+CPIN?";
+// Request International Mobile Subscriber Identity (IMSI)
+static const char at_CIMI[] = "AT+CIMI";
 
 static const char at_CGPADDR[] = "AT+CGPADDR=0";
 static const char at_CGCONTRDP[] = "AT+CGCONTRDP=0";
