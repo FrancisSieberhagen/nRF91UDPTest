@@ -5,7 +5,6 @@
  */
 
 #include <zephyr.h>
-#include <bsd.h>
 #include <net/socket.h>
 #include <modem/lte_lc.h>
 #include <modem/at_cmd.h>
