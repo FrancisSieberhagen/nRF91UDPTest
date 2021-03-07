@@ -29,7 +29,7 @@
 
 ### Build hex 
     $ export ZEPHYR_BASE=/????
-    $ west build -b nrf9160_pca10090ns
+    $ west build -b nrf9160dk_nrf9160ns
 
 ### Program nRF9160-DK using nrfjprog
     $ nrfjprog --program build/zephyr/merged.hex -f nrf91 --chiperase --reset --verify
